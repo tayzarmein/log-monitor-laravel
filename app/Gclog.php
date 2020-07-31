@@ -4,14 +4,23 @@ namespace App;
 
 use Illuminate\Support\Carbon;
 use Illuminate\Database\Eloquent\Model;
+use Carbon\CarbonImmutable;
 
 class Gclog extends Model
 {
 
     protected $guarded = [];
 
+    /**
+     * Parse GC Logs from input string.
+     *
+     * @param string $log_string
+     * @return int|false Number of record processed. False on fail
+     **/
+
     public static function parseLog(string $log_string)
     {
+        $processedRecords = 0;
         $array_of_log = explode("\n", $log_string);
 
         foreach ($array_of_log as $eachLine) {
@@ -42,6 +51,8 @@ class Gclog extends Model
                     'heap_maximum' => $heap_maximum,
                 ]);
 
+                $processedRecords++;
+
 
 
                 continue;
@@ -70,6 +81,8 @@ class Gclog extends Model
                     'heap_maximum' => $heap_maximum,
                 ]);
 
+                $processedRecords++;
+
                 continue;
             }
 
@@ -83,6 +96,8 @@ class Gclog extends Model
                     'server_name' => "J2EE-1",
                     'datetime' => Carbon::createFromFormat("Y-m-d\TH:i:s.v", $datetime)->format("Y-m-d H:i:s.v"),
                 ]);
+
+                $processedRecords++;
 
                 continue;
             }
@@ -98,6 +113,8 @@ class Gclog extends Model
                     'datetime' => Carbon::createFromFormat("Y-m-d\TH:i:s.v", $datetime)->format("Y-m-d H:i:s.v"),
                 ]);
 
+                $processedRecords++;
+
                 continue;
             }
 
@@ -111,6 +128,8 @@ class Gclog extends Model
                     'server_name' => "J2EE-1",
                     'datetime' => Carbon::createFromFormat("Y-m-d\TH:i:s.v", $datetime)->format("Y-m-d H:i:s.v"),
                 ]);
+
+                $processedRecords++;
 
                 continue;
             }
@@ -126,6 +145,8 @@ class Gclog extends Model
                     'datetime' => Carbon::createFromFormat("Y-m-d\TH:i:s.v", $datetime)->format("Y-m-d H:i:s.v"),
                 ]);
 
+                $processedRecords++;
+
                 continue;
             }
 
@@ -140,6 +161,8 @@ class Gclog extends Model
                     'datetime' => Carbon::createFromFormat("Y-m-d\TH:i:s.v", $datetime)->format("Y-m-d H:i:s.v"),
                 ]);
 
+                $processedRecords++;
+
                 continue;
             }
 
@@ -153,6 +176,8 @@ class Gclog extends Model
                     'server_name' => "J2EE-1",
                     'datetime' => Carbon::createFromFormat("Y-m-d\TH:i:s.v", $datetime)->format("Y-m-d H:i:s.v"),
                 ]);
+
+                $processedRecords++;
 
                 continue;
             }
@@ -179,6 +204,8 @@ class Gclog extends Model
                     'heap_maximum' => $heap_maximum,
                 ]);
 
+                $processedRecords++;
+
                 continue;
             }
 
@@ -192,6 +219,8 @@ class Gclog extends Model
                     'server_name' => "J2EE-1",
                     'datetime' => Carbon::createFromFormat("Y-m-d\TH:i:s.v", $datetime)->format("Y-m-d H:i:s.v"),
                 ]);
+
+                $processedRecords++;
 
                 continue;
             }
@@ -207,6 +236,8 @@ class Gclog extends Model
                     'datetime' => Carbon::createFromFormat("Y-m-d\TH:i:s.v", $datetime)->format("Y-m-d H:i:s.v"),
                 ]);
 
+                $processedRecords++;
+
                 continue;
             }
 
@@ -220,6 +251,8 @@ class Gclog extends Model
                     'server_name' => "J2EE-1",
                     'datetime' => Carbon::createFromFormat("Y-m-d\TH:i:s.v", $datetime)->format("Y-m-d H:i:s.v"),
                 ]);
+
+                $processedRecords++;
 
                 continue;
             }
@@ -235,10 +268,55 @@ class Gclog extends Model
                     'datetime' => Carbon::createFromFormat("Y-m-d\TH:i:s.v", $datetime)->format("Y-m-d H:i:s.v"),
                 ]);
 
+                $processedRecords++;
+
                 continue;
             }
         }
 
-        return 1;
+        return $processedRecords;
     }
+
+    public static function getLastOneMonth()
+    {
+        if (self::latest('datetime')->first() !== null) {
+            $lastDateTime = self::latest('datetime')->first()->datetime;
+        } else {
+            return null;
+        }
+        
+        $lastEntryDatetime = new CarbonImmutable($lastDateTime);
+        $oneMonthBeforeLastEntryDatetime = $lastEntryDatetime->subMonth();
+
+        return self::whereBetween('datetime', [$oneMonthBeforeLastEntryDatetime, $lastEntryDatetime])->oldest('datetime')->get();
+    }
+
+    public static function getLastOneWeek()
+    {
+        $lastDateTime = self::latest('datetime')->first()->datetime;
+
+        if(!$lastDateTime) {
+            return null;
+        }
+
+        $lastEntryDatetime = new CarbonImmutable();
+        $oneWeekBeforeLastEntryDatetime = $lastEntryDatetime->subMonth();
+
+        return self::whereBetween('datetime', [$lastEntryDatetime, $oneWeekBeforeLastEntryDatetime])->get();
+    }
+
+    public static function getLastOneDay()
+    {
+        $lastDateTime = self::latest('datetime')->first()->datetime;
+
+        if(!$lastDateTime) {
+            return null;
+        }
+
+        $lastEntryDatetime = new CarbonImmutable();
+        $oneDayBeforeLastEntryDatetime = $lastEntryDatetime->subMonth();
+
+        return self::whereBetween('datetime', [$lastEntryDatetime, $oneDayBeforeLastEntryDatetime])->get();
+    }
+
 }

@@ -10,15 +10,22 @@ use App\FileHash;
 
 class GclogController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $request = request();
-
         if ($request->startdatetime && $request->enddatetime) {
             $collection = Gclog::whereBetween('datetime', [$request->startdatetime, $request->enddatetime])->get();
-         }
-    
-        return GclogResource::collection($collection);
+
+            return GclogResource::collection($collection);
+        }
+
+        if (Gclog::getLastOneMonth() !== null) {
+            return GclogResource::collection(Gclog::getLastOneMonth());
+        } else {
+            return [
+                'data' => []
+            ];
+        }
+
     
     }
 

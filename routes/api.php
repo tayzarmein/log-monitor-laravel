@@ -21,3 +21,5 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 Route::get('gclogs', 'GclogController@index');
 
 Route::get('/parsegclogs', 'GclogController@parseGclogs');
+
+Route::post('upload', 'UploadController');
