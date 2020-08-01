@@ -18,8 +18,11 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::get('gclogs', 'GclogController@index');
+Route::get('gclogs', 'GclogController@index')->middleware('auth:api');
 
 Route::get('/parsegclogs', 'GclogController@parseGclogs');
 
 Route::post('upload', 'UploadController');
+
+Route::post('login', 'Auth\ApiAuthController@login')->name('login.api');
+Route::post('logout', 'Auth\ApiAuthController@logout')->name('logout.api');
