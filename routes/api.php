@@ -14,15 +14,15 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:api')->get('/user', function (Request $request) {
+Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::get('gclogs', 'GclogController@index')->middleware('auth:api');
+Route::get('gclogs', 'GclogController@index')->middleware('auth:sanctum');
 
-Route::get('/parsegclogs', 'GclogController@parseGclogs');
+Route::get('/parsegclogs', 'GclogController@parseGclogs')->middleware('auth:sanctum');
 
-Route::post('upload', 'UploadController');
+Route::post('upload', 'UploadController')->middleware('auth:sanctum');
 
-Route::post('login', 'Auth\ApiAuthController@login')->name('login.api');
-Route::post('logout', 'Auth\ApiAuthController@logout')->name('logout.api');
+Route::post('login', 'Auth\LoginController@login')->name('login.api');
+Route::post('logout', 'Auth\LoginController@logout')->name('logout.api');
